@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antigravity Workflows — Setup</title>
+  <meta name="description" content="Fully automatic setup for Antigravity Workflows. Select, click, done." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:          #0a0b0f;
+      --bg-card:     #111218;
+      --bg-panel:    #14151d;
+      --bg-hover:    #1a1b26;
+      --border:      rgba(255,255,255,0.07);
+      --border-glow: rgba(99,102,241,0.4);
+      --accent:      #6366f1;
+      --accent-2:    #8b5cf6;
+      --accent-grad: linear-gradient(135deg, #6366f1, #8b5cf6);
+      --green:       #10b981;
+      --red:         #f43f5e;
+      --yellow:      #f59e0b;
+      --text-1:      #f8fafc;
+      --text-2:      #94a3b8;
+      --text-3:      #475569;
+      --radius:      12px;
+      --radius-sm:   8px;
+      --shadow:      0 4px 32px rgba(0,0,0,0.5);
+      --glow:        0 0 24px rgba(99,102,241,0.25);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background mesh ──────────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% -10%, rgba(99,102,241,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 110%, rgba(139,92,246,0.10) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────────────── */
+    .app { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
+
+    /* ── Header ───────────────────────────────────────────────────────────── */
+    header {
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      background: rgba(10,11,15,0.7);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--accent-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: var(--glow);
+      flex-shrink: 0;
+    }
+    .header-text h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-text p { font-size: 13px; color: var(--text-2); margin-top: 1px; }
+    .header-badge {
+      margin-left: auto;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: #a5b4fc;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* ── Main content ─────────────────────────────────────────────────────── */
+    .content {
+      display: flex;
+      flex: 1;
+      gap: 0;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: var(--bg-panel);
+    }
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 0 8px;
+      margin-bottom: 8px;
+    }
+    .cat-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      color: var(--text-2);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s;
+      width: 100%;
+      text-align: left;
+    }
+    .cat-btn:hover { background: var(--bg-hover); color: var(--text-1); }
+    .cat-btn.active {
+      background: rgba(99,102,241,0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99,102,241,0.25);
+    }
+    .cat-emoji { font-size: 16px; width: 20px; text-align: center; }
+    .cat-count {
+      margin-left: auto;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: var(--text-3);
+    }
+    .cat-btn.active .cat-count {
+      background: rgba(99,102,241,0.25);
+      color: #c7d2fe;
+    }
+    .sidebar-sep { height: 1px; background: var(--border); margin: 12px 8px; }
+
+    /* ── Workspace picker ─────────────────────────────────────────────────── */
+    .workspace-section {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .workspace-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .workspace-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-1);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.18s;
+      word-break: break-all;
+      resize: none;
+      height: 58px;
+    }
+    .workspace-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99,102,241,0.15); }
+    .workspace-hint { font-size: 11px; color: var(--text-3); margin-top: 4px; line-height: 1.4; }
+
+    /* ── Main panel ───────────────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Toolbar ──────────────────────────────────────────────────────────── */
+    .toolbar {
+      padding: 20px 28px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-panel);
+    }
+    .search-wrap {
+      flex: 1;
+      position: relative;
+    }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    #searchInput {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 12px 10px 36px;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    #searchInput::placeholder { color: var(--text-3); }
+    #searchInput:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99,102,241,0.15); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--bg-hover); color: var(--text-1); border-color: var(--border-glow); }
+    .btn-primary {
+      background: var(--accent-grad);
+      color: #fff;
+      box-shadow: 0 2px 16px rgba(99,102,241,0.35);
+    }
+    .btn-primary:hover { filter: brightness(1.12); box-shadow: 0 4px 24px rgba(99,102,241,0.45); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; filter: none; transform: none; }
+    .selected-count {
+      font-size: 12px;
+      color: var(--text-2);
+      white-space: nowrap;
+    }
+    .selected-count span { color: #a5b4fc; font-weight: 700; }
+
+    /* ── Category Header ──────────────────────────────────────────────────── */
+    .cat-header {
+      padding: 20px 28px 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cat-header-emoji { font-size: 22px; }
+    .cat-header-info h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .cat-header-info p { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+    .cat-actions { margin-left: auto; display: flex; gap: 8px; }
+
+    /* ── Workflow grid ────────────────────────────────────────────────────── */
+    .workflows-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 28px 28px;
+    }
+    .workflows-area::-webkit-scrollbar { width: 6px; }
+    .workflows-area::-webkit-scrollbar-track { background: transparent; }
+    .workflows-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 0;
+      color: var(--text-3);
+    }
+    .no-results .icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* ── Workflow Card ────────────────────────────────────────────────────── */
+    .workflow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+    .workflow-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent-grad);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .workflow-card:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .workflow-card.selected {
+      border-color: var(--accent);
+      background: rgba(99,102,241,0.08);
+      box-shadow: 0 0 0 1px rgba(99,102,241,0.3), var(--glow);
+    }
+    .workflow-card.selected::before { opacity: 0.04; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .card-name {
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-1);
+    }
+    .workflow-card.selected .card-name { color: #c7d2fe; }
+    .card-check {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s;
+      background: transparent;
+    }
+    .workflow-card.selected .card-check {
+      background: var(--accent-grad);
+      border-color: transparent;
+      box-shadow: 0 0 8px rgba(99,102,241,0.4);
+    }
+    .card-check-icon { font-size: 11px; opacity: 0; transition: opacity 0.15s; }
+    .workflow-card.selected .card-check-icon { opacity: 1; }
+    .card-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .tag {
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-3);
+      border: 1px solid var(--border);
+    }
+    .workflow-card.selected .tag { background: rgba(99,102,241,0.12); color: #a5b4fc; border-color: rgba(99,102,241,0.2); }
+
+    /* ── Install bar ──────────────────────────────────────────────────────── */
+    .install-bar {
+      border-top: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(10,11,15,0.85);
+      backdrop-filter: blur(12px);
+    }
+    .install-info { flex: 1; }
+    .install-info .label { font-size: 12px; color: var(--text-2); margin-bottom: 2px; }
+    .install-info .names {
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #a5b4fc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 500px;
+    }
+
+    /* ── Modal overlay ────────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 680px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6), var(--glow);
+      transform: scale(0.96) translateY(8px);
+      transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .modal-status-icon { font-size: 22px; }
+    .modal-title { font-size: 16px; font-weight: 700; }
+    .modal-subtitle { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+    .modal-close {
+      margin-left: auto;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-2);
+      cursor: pointer;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.18s;
+    }
+    .modal-close:hover { background: var(--bg-hover); color: var(--text-1); }
+    .modal-log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      color: var(--text-2);
+      background: #0d0e14;
+      min-height: 200px;
+    }
+    .modal-log::-webkit-scrollbar { width: 6px; }
+    .modal-log::-webkit-scrollbar-track { background: transparent; }
+    .modal-log::-webkit-scrollbar-thumb { background: #2d2f3d; border-radius: 99px; }
+    .log-line { display: block; }
+    .log-line.success { color: var(--green); }
+    .log-line.error { color: var(--red); }
+    .log-line.info { color: #60a5fa; }
+    .log-line.dim { color: var(--text-3); }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-grad);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .progress-fill.indeterminate {
+      width: 40%;
+      animation: slide 1.2s ease-in-out infinite;
+    }
+    @keyframes slide {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+    .modal-status-text { font-size: 12px; color: var(--text-2); white-space: nowrap; }
+
+    /* ── Loading ──────────────────────────────────────────────────────────── */
+    .loading {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--text-2);
+    }
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Pulse dot ────────────────────────────────────────────────────────── */
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-right: 6px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- ── Header ── -->
+  <header>
+    <div class="logo">🚀</div>
+    <div class="header-text">
+      <h1>Antigravity Workflows Setup</h1>
+      <p>Select workflows → Click Install → Done automatically</p>
+    </div>
+    <div class="header-badge" id="versionBadge">v1.1.2</div>
+  </header>
+
+  <!-- ── Main content ── -->
+  <div class="content">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-title">Categories</div>
+      <div id="catList"></div>
+      <div class="sidebar-sep"></div>
+      <div class="workspace-section">
+        <label class="workspace-label" for="targetDir">📁 Target Project Folder</label>
+        <textarea
+          class="workspace-input"
+          id="targetDir"
+          placeholder="C:\Users\you\my-project (leave blank for current dir)"
+          spellcheck="false"
+        ></textarea>
+        <p class="workspace-hint">Workflows will be installed to <code>.agents/workflows/</code> inside this folder.</p>
+      </div>
+    </nav>
+
+    <!-- Main panel -->
+    <div class="main">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search workflows by name, tag, or description…" autocomplete="off" />
+        </div>
+        <span class="selected-count" id="selectedCount"><span id="selNum">0</span> selected</span>
+        <button class="btn btn-ghost" id="selectAllBtn" onclick="selectAll()">☑ Select All</button>
+        <button class="btn btn-ghost" id="clearBtn" onclick="clearAll()">✕ Clear</button>
+      </div>
+
+      <!-- Category header -->
+      <div class="cat-header" id="catHeader">
+        <span class="cat-header-emoji" id="catHeaderEmoji">🌐</span>
+        <div class="cat-header-info">
+          <h2 id="catHeaderName">All Workflows</h2>
+          <p id="catHeaderDesc">Browse and select workflows to install</p>
+        </div>
+      </div>
+
+      <!-- Workflow cards -->
+      <div class="workflows-area">
+        <div class="workflow-grid" id="workflowGrid">
+          <div class="loading"><div class="spinner"></div><span>Loading workflows…</span></div>
+        </div>
+      </div>
+
+      <!-- Install bar -->
+      <div class="install-bar">
+        <div class="install-info">
+          <div class="label">Selected workflows:</div>
+          <div class="names" id="selectedNames">None — check cards above to select</div>
+        </div>
+        <button class="btn btn-primary" id="installBtn" onclick="startInstall()" disabled>
+          ⚡ Install Selected
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Install Modal ── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-status-icon" id="modalIcon">⚙️</span>
+      <div>
+        <div class="modal-title" id="modalTitle">Installing Workflows…</div>
+        <div class="modal-subtitle" id="modalSubtitle">Please wait, this may take a moment.</div>
+      </div>
+      <button class="modal-close" id="modalCloseBtn" onclick="closeModal()" style="display:none">✕ Close</button>
+    </div>
+    <div class="modal-log" id="modalLog"></div>
+    <div class="modal-footer">
+      <div class="progress-bar">
+        <div class="progress-fill indeterminate" id="progressFill"></div>
+      </div>
+      <span class="modal-status-text" id="modalStatusText"><span class="pulse-dot"></span>Running…</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+let registry = { workflows: {}, categories: {} };
+let selected = new Set();
+let activeCategory = 'all';
+let searchQuery = '';
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const res = await fetch('/workflows');
+    if (!res.ok) throw new Error('Server not reachable');
+    registry = await res.json();
+    document.getElementById('versionBadge').textContent = `v${registry.version || '1.1.2'}`;
+    renderSidebar();
+    renderGrid();
+  } catch (e) {
+    document.getElementById('workflowGrid').innerHTML = `
+      <div class="no-results">
+        <div class="icon">⚠️</div>
+        <div>Could not connect to setup server.</div>
+        <div style="font-size:13px;color:var(--text-3);margin-top:8px;">Make sure <code>node setup-server.js</code> is running.</div>
+      </div>`;
+  }
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const cats = registry.categories || {};
+  const workflows = Object.values(registry.workflows || {});
+
+  // Count per category
+  const counts = {};
+  workflows.forEach(w => { counts[w.category] = (counts[w.category] || 0) + 1; });
+
+  let html = `
+    <button class="cat-btn ${activeCategory === 'all' ? 'active' : ''}" onclick="setCategory('all')"
+      id="cat-all">
+      <span class="cat-emoji">🌐</span>
+      All Workflows
+      <span class="cat-count">${workflows.length}</span>
+    </button>`;
+
+  Object.entries(cats).forEach(([id, cat]) => {
+    html += `
+      <button class="cat-btn ${activeCategory === id ? 'active' : ''}" onclick="setCategory('${id}')"
+        id="cat-${id}">
+        <span class="cat-emoji">${cat.emoji}</span>
+        ${cat.name}
+        <span class="cat-count">${counts[id] || 0}</span>
+      </button>`;
+  });
+
+  document.getElementById('catList').innerHTML = html;
+}
+
+// ── Category ─────────────────────────────────────────────────────────────────
+function setCategory(catId) {
+  activeCategory = catId;
+  searchQuery = '';
+  document.getElementById('searchInput').value = '';
+  renderSidebar();
+  updateCatHeader();
+  renderGrid();
+}
+
+function updateCatHeader() {
+  const cats = registry.categories || {};
+  if (activeCategory === 'all') {
+    document.getElementById('catHeaderEmoji').textContent = '🌐';
+    document.getElementById('catHeaderName').textContent = 'All Workflows';
+    document.getElementById('catHeaderDesc').textContent = 'Browse and select workflows to install';
+  } else {
+    const cat = cats[activeCategory] || {};
+    document.getElementById('catHeaderEmoji').textContent = cat.emoji || '📦';
+    document.getElementById('catHeaderName').textContent = cat.name || activeCategory;
+    document.getElementById('catHeaderDesc').textContent = cat.description || '';
+  }
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────────────
+function renderGrid() {
+  const workflows = Object.entries(registry.workflows || {});
+  const q = searchQuery.toLowerCase();
+
+  const filtered = workflows.filter(([name, w]) => {
+    const matchesCat = activeCategory === 'all' || w.category === activeCategory;
+    const matchesQ = !q ||
+      name.includes(q) ||
+      (w.description || '').toLowerCase().includes(q) ||
+      (w.tags || []).some(t => t.includes(q));
+    return matchesCat && matchesQ;
+  });
+
+  if (filtered.length === 0) {
+    document.getElementById('workflowGrid').innerHTML = `
+      <div class="no-results">
+        <div class="icon">🔍</div>
+        <div>No workflows match "<strong>${escHtml(searchQuery || activeCategory)}</strong>"</div>
+      </div>`;
+    return;
+  }
+
+  const cards = filtered.map(([name, w]) => {
+    const sel = selected.has(name);
+    const tags = (w.tags || []).slice(0, 4).map(t => `<span class="tag">${escHtml(t)}</span>`).join('');
+    return `
+      <div class="workflow-card ${sel ? 'selected' : ''}" onclick="toggle('${name}')" id="card-${name}" role="checkbox" aria-checked="${sel}" tabindex="0">
+        <div class="card-top">
+          <span class="card-name">${escHtml(name)}</span>
+          <span class="card-check"><span class="card-check-icon">✓</span></span>
+        </div>
+        <div class="card-desc">${escHtml(w.description || '')}</div>
+        <div class="card-tags">${tags}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('workflowGrid').innerHTML = cards;
+}
+
+// ── Toggle selection ──────────────────────────────────────────────────────────
+function toggle(name) {
+  if (selected.has(name)) selected.delete(name);
+  else selected.add(name);
+  updateCard(name);
+  updateInstallBar();
+}
+
+function updateCard(name) {
+  const card = document.getElementById(`card-${name}`);
+  if (!card) return;
+  if (selected.has(name)) {
+    card.classList.add('selected');
+    card.setAttribute('aria-checked', 'true');
+  } else {
+    card.classList.remove('selected');
+    card.setAttribute('aria-checked', 'false');
+  }
+}
+
+function selectAll() {
+  const workflows = Object.entries(registry.workflows || {});
+  const q = searchQuery.toLowerCase();
+  workflows.filter(([name, w]) => {
+    const matchesCat = activeCategory === 'all' || w.category === activeCategory;
+    const matchesQ = !q || name.includes(q) || (w.description || '').toLowerCase().includes(q) || (w.tags || []).some(t => t.includes(q));
+    return matchesCat && matchesQ;
+  }).forEach(([name]) => selected.add(name));
+  renderGrid();
+  updateInstallBar();
+}
+
+function clearAll() {
+  selected.clear();
+  renderGrid();
+  updateInstallBar();
+}
+
+// ── Install bar ────────────────────────────────────────────────────────────────
+function updateInstallBar() {
+  const names = [...selected];
+  document.getElementById('selNum').textContent = names.length;
+  document.getElementById('installBtn').disabled = names.length === 0;
+  if (names.length === 0) {
+    document.getElementById('selectedNames').textContent = 'None — check cards above to select';
+  } else {
+    document.getElementById('selectedNames').textContent = names.join(', ');
+  }
+}
+
+// ── Search ─────────────────────────────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  renderGrid();
+});
+
+// ── Install ────────────────────────────────────────────────────────────────────
+async function startInstall() {
+  if (selected.size === 0) return;
+
+  const targetDir = document.getElementById('targetDir').value.trim();
+  const workflows = [...selected];
+
+  openModal();
+
+  try {
+    const res = await fetch('/install', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ workflows, targetDir }),
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const { type, data } = JSON.parse(line.slice(6));
+          if (type === 'log') appendLog(data);
+          if (type === 'done') onInstallDone(data);
+        } catch {}
+      }
+    }
+  } catch (e) {
+    appendLog(`❌ Connection error: ${e.message}`);
+    onInstallDone({ code: 1 });
+  }
+}
+
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('modalLog').innerHTML = '';
+  document.getElementById('modalTitle').textContent = 'Installing Workflows…';
+  document.getElementById('modalSubtitle').textContent = `Installing ${selected.size} workflow(s). Please wait.`;
+  document.getElementById('modalIcon').textContent = '⚙️';
+  document.getElementById('modalCloseBtn').style.display = 'none';
+  document.getElementById('progressFill').className = 'progress-fill indeterminate';
+  document.getElementById('modalStatusText').innerHTML = '<span class="pulse-dot"></span>Running…';
+  document.getElementById('installBtn').disabled = true;
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('installBtn').disabled = selected.size === 0;
+}
+
+function appendLog(line) {
+  const log = document.getElementById('modalLog');
+  const span = document.createElement('span');
+  span.className = 'log-line';
+  if (line.startsWith('✅')) span.classList.add('success');
+  else if (line.startsWith('❌')) span.classList.add('error');
+  else if (line.startsWith('▶') || line.startsWith('🚀') || line.startsWith('📁') || line.startsWith('📍')) span.classList.add('info');
+  else if (line.startsWith('─') || line === '') span.classList.add('dim');
+  span.textContent = line || '\u00a0';
+  log.appendChild(span);
+  log.scrollTop = log.scrollHeight;
+}
+
+function onInstallDone(data) {
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill';
+  fill.style.width = '100%';
+
+  if (data.code === 0) {
+    document.getElementById('modalIcon').textContent = '✅';
+    document.getElementById('modalTitle').textContent = 'Installation Complete!';
+    document.getElementById('modalSubtitle').textContent = `${(data.workflows || []).length} workflow(s) installed successfully.`;
+    document.getElementById('modalStatusText').textContent = '✅ Done';
+    fill.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+  } else {
+    document.getElementById('modalIcon').textContent = '❌';
+    document.getElementById('modalTitle').textContent = 'Installation Failed';
+    document.getElementById('modalSubtitle').textContent = 'Check the log below for details.';
+    document.getElementById('modalStatusText').textContent = '❌ Failed';
+    fill.style.background = 'linear-gradient(135deg, #f43f5e, #be123c)';
+  }
+  document.getElementById('modalCloseBtn').style.display = '';
+}
+
+// ── Keyboard nav ───────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// Keyboard toggle for cards
+document.getElementById('workflowGrid').addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'Enter') {
+    const card = e.target.closest('.workflow-card');
+    if (card) { e.preventDefault(); card.click(); }
+  }
+});
+
+// ── Util ───────────────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Start ──────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
