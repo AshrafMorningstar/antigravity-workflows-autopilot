@@ -62,10 +62,37 @@ function handleWorkflows(req, res) {
   json(res, 200, registry);
 }
 
-/** POST /install — install selected workflows into a target directory
- *  Body: { workflows: string[], targetDir: string }
- *  Streams SSE progress events back to the client.
- */
+/** GET /workflow-content — return raw markdown content for preview */
+function handleWorkflowContent(req, res, url) {
+  const name = url.searchParams.get('name');
+  const category = url.searchParams.get('category');
+  const registry = readRegistry();
+
+  let cat = category;
+  if (!cat && name && registry.workflows[name]) {
+    cat = registry.workflows[name].category;
+  }
+
+  if (!name || !cat) {
+    return json(res, 400, { error: 'Missing name or category parameter' });
+  }
+
+  const filePath = path.join(__dirname, 'workflows', cat, `${name}.md`);
+  if (!fs.existsSync(filePath)) {
+    return json(res, 404, { error: `Workflow file not found: ${cat}/${name}.md` });
+  }
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    cors(res);
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end(content);
+  } catch (err) {
+    json(res, 500, { error: err.message });
+  }
+}
+
+/** POST /install — directly install selected workflows into target directory */
 function handleInstall(req, res) {
   readBody(req).then(body => {
     const workflows = Array.isArray(body.workflows) ? body.workflows : [];
@@ -89,54 +116,53 @@ function handleInstall(req, res) {
     };
 
     send('log', `🚀 Starting installation of ${workflows.length} workflow(s)...`);
-    send('log', `📁 Target directory: ${targetDir || '(current directory)'}`);
+    send('log', `📁 Target directory: ${targetDir || '(current workspace)'}`);
     send('log', '');
 
-    // Build npx command arguments
-    const args = ['antigravity-workflows', 'install', ...workflows];
-    const spawnOpts = {
-      cwd: targetDir || __dirname,
-      shell: true,
-      env: { ...process.env },
-    };
+    try {
+      const baseTarget = targetDir ? path.resolve(targetDir) : process.cwd();
+      const agentsWorkflows = path.join(baseTarget, '.agents', 'workflows');
+      const agentWorkflows = path.join(baseTarget, '.agent', 'workflows');
+      fs.mkdirSync(agentsWorkflows, { recursive: true });
+      fs.mkdirSync(agentWorkflows, { recursive: true });
 
-    send('log', `▶ Running: npx ${args.join(' ')}`);
-    send('log', '─'.repeat(50));
+      const registry = readRegistry();
+      let installedCount = 0;
 
-    const child = spawn('npx', args, spawnOpts);
-
-    child.stdout.on('data', chunk => {
-      chunk.toString().split('\n').forEach(line => {
-        if (line.trim()) send('log', line);
-      });
-    });
-
-    child.stderr.on('data', chunk => {
-      chunk.toString().split('\n').forEach(line => {
-        if (line.trim()) send('log', `  ${line}`);
-      });
-    });
-
-    child.on('close', code => {
+      send('log', `▶ Installing directly from local workflow bundle...`);
       send('log', '─'.repeat(50));
-      if (code === 0) {
-        send('log', `✅ Installation complete! ${workflows.length} workflow(s) installed.`);
-        send('log', `📍 Installed to: ${path.join(targetDir || __dirname, '.agents', 'workflows')}`);
-        send('done', { code: 0, workflows });
-      } else {
-        send('log', `❌ Installation failed (exit code ${code}).`);
-        send('log', '💡 Tip: Make sure Node.js and npx are installed and accessible.');
-        send('done', { code, workflows });
-      }
-      res.end();
-    });
 
-    child.on('error', err => {
-      send('log', `❌ Error: ${err.message}`);
-      send('log', '💡 Is Node.js installed? Try: node --version');
+      for (const name of workflows) {
+        const wf = registry.workflows[name];
+        if (!wf) {
+          send('log', `⚠️ Workflow "${name}" not found in registry, skipping.`);
+          continue;
+        }
+
+        const sourceFile = path.join(__dirname, 'workflows', wf.category, `${name}.md`);
+        if (!fs.existsSync(sourceFile)) {
+          send('log', `❌ Source file not found: workflows/${wf.category}/${name}.md`);
+          continue;
+        }
+
+        const content = fs.readFileSync(sourceFile, 'utf-8');
+        fs.writeFileSync(path.join(agentsWorkflows, `${name}.md`), content, 'utf-8');
+        fs.writeFileSync(path.join(agentWorkflows, `${name}.md`), content, 'utf-8');
+        installedCount++;
+        send('log', `  ✔ Installed: ${name} (${wf.category}) — ${wf.description}`);
+      }
+
+      send('log', '─'.repeat(50));
+      send('log', `✅ Installation complete! ${installedCount} workflow(s) written to disk.`);
+      send('log', `📍 Destination: ${agentsWorkflows}`);
+      send('log', `💡 In Antigravity or Cursor, type /${workflows[0] || 'workflow-name'} to execute!`);
+      send('done', { code: 0, workflows, installedCount });
+      res.end();
+    } catch (err) {
+      send('log', `❌ Installation error: ${err.message}`);
       send('done', { code: 1, error: err.message });
       res.end();
-    });
+    }
   });
 }
 
@@ -167,6 +193,9 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'GET' && url.pathname === '/workflows') {
     return handleWorkflows(req, res);
+  }
+  if (req.method === 'GET' && url.pathname === '/workflow-content') {
+    return handleWorkflowContent(req, res, url);
   }
   if (req.method === 'POST' && url.pathname === '/install') {
     return handleInstall(req, res);

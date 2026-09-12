@@ -1,16 +1,12 @@
 import chalk from 'chalk';
 import ora from 'ora';
+import { getRegistry } from '../utils.js';
 
-const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/harikrishna8121999/antigravity-workflows/main';
-const REGISTRY_URL = `${GITHUB_RAW_URL}/workflows/registry.json`;
-
-export async function searchWorkflows(query, options) {
+export async function searchWorkflows(query, options = {}) {
     const spinner = ora('Searching...').start();
 
     try {
-        const res = await fetch(REGISTRY_URL);
-        if (!res.ok) throw new Error('Failed to fetch registry');
-        const registry = await res.json();
+        const registry = await getRegistry();
 
         spinner.stop();
 
